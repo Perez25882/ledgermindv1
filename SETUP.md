@@ -86,7 +86,7 @@ The project has TypeScript and ESLint errors ignored during builds for developme
 
 ## Support
 
-This project was created using v0.dev. For customizations and additional features, you can:
+You can:
 - Modify the existing components
 - Add new pages and functionality
 - Extend the database schema as needed
