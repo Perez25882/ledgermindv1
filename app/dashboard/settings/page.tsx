@@ -7,8 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
-import { Settings, User, Bell, Shield, Trash2, Palette } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { Settings, User, Bell, Shield, Trash2 } from "lucide-react"
 
 export default async function SettingsPage() {
   const user = await getServerUser()
@@ -99,19 +98,7 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Appearance Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" />
-              Appearance
-            </CardTitle>
-            <CardDescription>Customize the look and feel of your application</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <ThemeToggle />
-          </CardContent>
-        </Card>
+
 
         {/* Security Settings */}
         <Card>

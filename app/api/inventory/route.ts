@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { adminAuth, adminDb } from "@/lib/firebase/firebase-admin"
 import { FieldValue } from "firebase-admin/firestore"
+import { logAdminEvent } from "@/lib/admin-logger"
 
 async function getUserId(request: NextRequest): Promise<string | null> {
   const sessionCookie = request.cookies.get("__session")?.value
@@ -84,6 +85,17 @@ export async function POST(request: NextRequest) {
       updated_at: FieldValue.serverTimestamp(),
     })
 
+    const userRecord = await adminAuth.getUser(userId)
+    const userEmail = userRecord.email || "Unknown"
+
+    await logAdminEvent(
+      userId,
+      userEmail,
+      "INVENTORY_CREATED",
+      `Added new inventory item: ${name.trim()}`,
+      { item_id: ref.id, name: name.trim() }
+    )
+
     return NextResponse.json({ id: ref.id })
   } catch (error) {
     console.error("Error creating inventory item:", error)
@@ -112,6 +124,18 @@ export async function PUT(request: NextRequest) {
     }
 
     await docRef.update({ ...updates, updated_at: FieldValue.serverTimestamp() })
+
+    const userRecord = await adminAuth.getUser(userId)
+    const userEmail = userRecord.email || "Unknown"
+
+    await logAdminEvent(
+      userId,
+      userEmail,
+      "INVENTORY_UPDATED",
+      `Updated inventory item: ${docSnap.data()?.name || id}`,
+      { item_id: id, updates }
+    )
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error updating inventory item:", error)
@@ -138,6 +162,18 @@ export async function DELETE(request: NextRequest) {
     }
 
     await docRef.delete()
+
+    const userRecord = await adminAuth.getUser(userId)
+    const userEmail = userRecord.email || "Unknown"
+    
+    await logAdminEvent(
+      userId,
+      userEmail,
+      "INVENTORY_DELETED",
+      `Deleted inventory item: ${docSnap.data()?.name || id}`,
+      { item_id: id }
+    )
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error deleting inventory item:", error)

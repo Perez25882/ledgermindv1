@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { adminAuth, adminDb } from "@/lib/firebase/firebase-admin"
 import { FieldValue } from "firebase-admin/firestore"
+import { logAdminEvent } from "@/lib/admin-logger"
 
 async function getUserId(request: NextRequest): Promise<string | null> {
   const sessionCookie = request.cookies.get("__session")?.value
@@ -135,6 +136,18 @@ export async function POST(request: NextRequest) {
     }
 
     await batch.commit()
+
+    const userRecord = await adminAuth.getUser(userId)
+    const userEmail = userRecord.email || "Unknown"
+
+    await logAdminEvent(
+      userId,
+      userEmail,
+      "SALE_RECORDED",
+      `Recorded a new sale for $${totalAmount}`,
+      { sale_id: saleRef.id, total_amount: totalAmount, items_count: items.length }
+    )
+
     return NextResponse.json({ id: saleRef.id })
   } catch (error) {
     console.error("Error creating sale:", error)

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import { adminAuth, adminDb } from "@/lib/firebase/firebase-admin"
 import { FieldValue } from "firebase-admin/firestore"
 import { aiService } from "@/lib/ai-service"
+import { logAdminEvent } from "@/lib/admin-logger"
 
 /**
  * POST /api/ai/chat
@@ -16,9 +17,12 @@ export async function POST(request: NextRequest) {
     }
 
     let userId: string
+    let userEmail: string = "Unknown"
     try {
       const decoded = await adminAuth.verifySessionCookie(sessionCookie, true)
       userId = decoded.uid
+      const userRecord = await adminAuth.getUser(userId)
+      userEmail = userRecord.email || "Unknown"
     } catch {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 })
     }
@@ -115,6 +119,14 @@ export async function POST(request: NextRequest) {
             resultString = `Success: Item "${args.name}" added to inventory with ID ${docRef.id}.`
             dataRefresh = true
 
+            await logAdminEvent(
+              userId,
+              userEmail,
+              "AI_TOOL_CALL",
+              `Ledmi added new item: ${args.name}`,
+              { item_id: docRef.id, tool: "add_inventory_item", args }
+            )
+
           } else if (toolCall.function.name === "update_stock_quantity") {
             const itemMatch = businessData.inventory.find(i => 
               (i.name as string).toLowerCase().includes(args.item_name.toLowerCase())
@@ -137,6 +149,14 @@ export async function POST(request: NextRequest) {
               })
               resultString = `Success: Updated stock for "${itemMatch.name}". Changed by ${qtyChange}.`
               dataRefresh = true
+
+              await logAdminEvent(
+                userId,
+                userEmail,
+                "AI_TOOL_CALL",
+                `Ledmi updated stock for: ${itemMatch.name}`,
+                { item_id: itemMatch.id, delta: qtyChange, tool: "update_stock_quantity", args }
+              )
             } else {
               resultString = `Error: Could not find any item matching "${args.item_name}" in inventory.`
             }

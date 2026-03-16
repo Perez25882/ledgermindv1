@@ -47,16 +47,16 @@ export async function UserDashboardPage() {
     inventoryItems = inventorySnap.docs.map((d) => ({
       id: d.id,
       ...d.data(),
-    }))
+    } as any))
     // Sort in JS instead of Firestore to avoid index requirement
     salesDocs = salesSnap.docs
-      .map((d) => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => {
+      .map((d) => ({ id: d.id, ...d.data() } as any))
+      .sort((a: any, b: any) => {
         const dateA = a.created_at?.toDate?.() || new Date(a.created_at || 0)
         const dateB = b.created_at?.toDate?.() || new Date(b.created_at || 0)
         return dateB.getTime() - dateA.getTime()
       })
-    categories = categoriesSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    categories = categoriesSnap.docs.map((d) => ({ id: d.id, ...d.data() } as any))
 
     lowStockCount = inventoryItems.filter(
       (item) => item.current_stock <= (item.min_stock_level || 10)
