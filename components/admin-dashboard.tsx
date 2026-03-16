@@ -136,8 +136,8 @@ export async function AdminDashboardPage() {
     d.setMonth(d.getMonth() - (5 - i))
     return {
       month: d.toLocaleDateString("en-US", { month: "short" }),
-      MRR: MRR > 0 ? MRR - ((5 - i) * (MRR * 0.05)) : 0, // Fake a 5% historical growth curve for demo
-      Users: totalUsers - ((5 - i) * 2) 
+      sales: MRR > 0 ? MRR - ((5 - i) * (MRR * 0.05)) : 0, // Maps to 'Sales' in the chart
+      profit: MRR > 0 ? (MRR - ((5 - i) * (MRR * 0.05))) * 0.8 : 0 // Maps to 'Profit' in the chart
     }
   })
 
