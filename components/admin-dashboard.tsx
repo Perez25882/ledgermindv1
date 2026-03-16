@@ -152,7 +152,7 @@ export async function AdminDashboardPage() {
       {/* Platform Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">SaaS Command Center</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">LedgerMind Control Center</h1>
           <p className="text-muted-foreground">
             Enterprise KPIs, recurring revenue, and platform health metrics.
           </p>
